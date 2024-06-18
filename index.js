@@ -3,6 +3,7 @@ import bp from 'body-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from "./routes/auth.js"
+import twilioRoutes from "./routes/twilio.js"
 import Connection from './config/connection.js'
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
 
 //route
 app.use('/api/auth', authRoutes);
+app.use('/api', twilioRoutes);
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
