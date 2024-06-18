@@ -19,7 +19,7 @@ app.get('/', (req, res) => {
 })
 
 //route
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
