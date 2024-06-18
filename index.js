@@ -2,6 +2,8 @@ import express from 'express'
 import bp from 'body-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import authRoutes from "./routes/auth.js"
+import Connection from './config/connection.js'
 
 dotenv.config();
 
@@ -16,6 +18,10 @@ app.get('/', (req, res) => {
     res.send('Hello from server')
 })
 
+//route
+app.use('/auth', authRoutes);
+
 app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`)
+    console.log(`App listening on port ${PORT}`);
+    Connection();
 })
