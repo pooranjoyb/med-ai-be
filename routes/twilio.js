@@ -1,8 +1,8 @@
 import express from 'express';
-import twilio from '../controllers/twilio.controller.js';
+import sendReminderSMS from '../controllers/medication.controller.js';
 
 const router = express.Router();
 
-router.post('/twilio', twilio);
+router.post('/sendReminders', sendReminderSMS);
 
 export default router;

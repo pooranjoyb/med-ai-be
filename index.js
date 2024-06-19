@@ -4,6 +4,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from "./routes/auth.js"
 import twilioRoutes from "./routes/twilio.js"
+import geminiRoutes from "./routes/gemini.js"
 import Connection from './config/connection.js'
 
 dotenv.config();
@@ -20,8 +21,9 @@ app.get('/', (req, res) => {
 })
 
 //route
+app.use('/api/gemini', geminiRoutes);
+app.use('/api/twilio', twilioRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api', twilioRoutes);
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
