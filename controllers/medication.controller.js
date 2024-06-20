@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import pkg from 'twilio';
+import { parse, format } from 'date-fns';
 const { Twilio } = pkg;
 
 dotenv.config();
@@ -22,21 +23,34 @@ const sendReminderSMS = async (req, res) => {
                 continue;
             }
 
+            // Parse and format the time
+            const now = new Date();
+            const currentDateString = format(now, 'yyyy-MM-dd');
+            const parsedTime = parse(`${currentDateString} ${time}`, 'yyyy-MM-dd h:mm a', new Date());
+            const sendAt = parsedTime.toISOString(); // Format to ISO 8601
+
             const message = `Reminder: Take ${dose} of ${medicineName} at ${time}.`;
 
-            await client.messages.create({
-                body: message,
-                from: process.env.TWILIO_PHONE_NUMBER,
-                to: phoneNumber
-            });
+            try {
+                const scheduledMessage = await client.messages.create({
+                    body: message,
+                    messagingServiceSid: "MGb54895e80fc913b0d2faaa390d8030b6",
+                    from: process.env.TWILIO_PHONE_NUMBER,
+                    to: phoneNumber,
+                    scheduleType: 'fixed',
+                    sendAt: sendAt,
+                });
 
-            console.log(`SMS reminder sent to ${phoneNumber}: ${message}`);
+                console.log(`Scheduled SMS reminder for ${phoneNumber} at ${sendAt}: ${message}`);
+            } catch (error) {
+                console.error(`Failed to schedule SMS for ${phoneNumber}:`, error);
+            }
         }
 
-        res.json({ message: 'SMS reminders sent successfully.' });
+        res.json({ message: 'SMS reminders scheduled successfully.' });
     } catch (error) {
-        console.error('Error sending SMS reminders:', error);
-        res.status(500).json({ error: 'An error occurred while sending SMS reminders.' });
+        console.error('Error scheduling SMS reminders:', error);
+        res.status(500).json({ error: 'An error occurred while scheduling SMS reminders.' });
     }
 };
 
