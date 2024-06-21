@@ -1,8 +1,9 @@
 import express from 'express';
-import getMedicalDiagonosis from '../controllers/gemini.controller.js';
+import { getDiagnosis, summarize } from '../controllers/gemini.controller.js';
 
 const router = express.Router();
 
-router.post('/getDiagonosis', getMedicalDiagonosis);
+router.post('/getDiagonosis', getDiagnosis);
+router.post('/summarize', summarize);
 
 export default router;
