@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import pkg from 'twilio';
 import { parse, format } from 'date-fns';
+import Appointment from '../models/appointment.model.js';
 const { Twilio } = pkg;
 
 dotenv.config();
@@ -54,4 +55,44 @@ const sendReminderSMS = async (req, res) => {
     }
 };
 
-export default sendReminderSMS;
+const saveAppointmentAndCall = async (req, res) => {
+    try {
+        const { docName, patientName, phoneNumber, appointmentDate, appointmentTime } = req.body;
+
+        if (!docName || !patientName || !phoneNumber || !appointmentDate || !appointmentTime) {
+            return res.status(400).json({ error: 'docName, patientName, phoneNumber, appointmentDate, and appointmentTime are required.' });
+        }
+
+        const newAppointment = new Appointment({
+            docName,
+            patientName,
+            phoneNumber,
+            appointmentDate,
+            appointmentTime
+        });
+
+        await newAppointment.save();
+
+        const message = `Hello, this is a confirmation call from Med-AI for your appointment with Dr. ${docName} on ${appointmentDate} at ${appointmentTime}. Thank you for choosing us, Have a Nice Day!`;
+
+        try {
+            const call = await client.calls.create({
+                twiml: `<Response><Say>${message}</Say></Response>`,
+                to: phoneNumber,
+                from: process.env.TWILIO_PHONE_NUMBER
+            });
+
+            console.log(`Call initiated to ${phoneNumber}: ${message}`);
+            res.json({ message: 'Appointment saved and confirmation call initiated successfully.' });
+        } catch (error) {
+            console.error(`Failed to initiate call to ${phoneNumber}:`, error);
+            res.status(500).json({ error: 'Failed to initiate confirmation call.' });
+        }
+    } catch (error) {
+        console.error('Error saving appointment and initiating call:', error);
+        res.status(500).json({ error: 'An error occurred while saving the appointment and initiating the call.' });
+    }
+};
+
+
+export { sendReminderSMS, saveAppointmentAndCall };
