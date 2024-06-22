@@ -3,6 +3,7 @@ import pkg from 'twilio';
 import Appointment from '../models/appointment.model.js';
 const { Twilio } = pkg;
 import moment from 'moment-timezone';
+import Medicine from '../models/medicine.model.js';
 
 dotenv.config();
 
@@ -17,7 +18,8 @@ const sendReminderSMS = async (req, res) => {
         }
 
         for (const reminder of reminders) {
-            const { dose, medicineName, time, phoneNumber } = reminder;
+            const { username, dose, medicineName, time, phoneNumber } = reminder;
+            const dosages = [];
 
             if (!dose || !medicineName || !time || !phoneNumber) {
                 console.error(`Invalid reminder format: ${JSON.stringify(reminder)}`);
@@ -30,18 +32,18 @@ const sendReminderSMS = async (req, res) => {
             const now = moment().tz('Asia/Kolkata');
             const currentDateString = now.format('YYYY-MM-DD');
             const parsedTime = moment.tz(`${currentDateString} ${time}`, 'YYYY-MM-DD h:mm A', 'Asia/Kolkata');
-            
+
             if (!parsedTime.isValid()) {
                 console.error(`Failed to parse time: ${currentDateString} ${time}`);
                 continue;
             }
-
+            
             const sendAt = parsedTime.toISOString(); // Format to ISO 8601
 
             const message = `Reminder: Take ${dose} of ${medicineName} at ${time}.`;
 
             try {
-                const scheduledMessage = await client.messages.create({
+                await client.messages.create({
                     body: message,
                     messagingServiceSid: "MGb54895e80fc913b0d2faaa390d8030b6",
                     from: process.env.TWILIO_PHONE_NUMBER,
@@ -51,6 +53,15 @@ const sendReminderSMS = async (req, res) => {
                 });
 
                 console.log(`Scheduled SMS reminder for ${phoneNumber} at ${sendAt}: ${message}`);
+
+                dosages.push({ dose, medicineName, time });
+
+                await Medicine.findOneAndUpdate(
+                    { username },
+                    { $push: { dosages: { $each: dosages } } },
+                    { upsert: true, new: true }
+                );
+
             } catch (error) {
                 console.error(`Failed to schedule SMS for ${phoneNumber}:`, error);
             }
