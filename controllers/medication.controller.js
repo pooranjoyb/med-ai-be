@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import pkg from 'twilio';
-import { parse, format } from 'date-fns';
 import Appointment from '../models/appointment.model.js';
 const { Twilio } = pkg;
+import moment from 'moment-timezone';
 
 dotenv.config();
 
@@ -23,11 +23,19 @@ const sendReminderSMS = async (req, res) => {
                 console.error(`Invalid reminder format: ${JSON.stringify(reminder)}`);
                 continue;
             }
+            if (!moment(time, 'h:mm A', true).isValid()) {
+                console.error(`Invalid time format: ${time}`);
+                continue;
+            }
+            const now = moment().tz('Asia/Kolkata');
+            const currentDateString = now.format('YYYY-MM-DD');
+            const parsedTime = moment.tz(`${currentDateString} ${time}`, 'YYYY-MM-DD h:mm A', 'Asia/Kolkata');
+            
+            if (!parsedTime.isValid()) {
+                console.error(`Failed to parse time: ${currentDateString} ${time}`);
+                continue;
+            }
 
-            // Parse and format the time
-            const now = new Date();
-            const currentDateString = format(now, 'yyyy-MM-dd');
-            const parsedTime = parse(`${currentDateString} ${time}`, 'yyyy-MM-dd h:mm a', new Date());
             const sendAt = parsedTime.toISOString(); // Format to ISO 8601
 
             const message = `Reminder: Take ${dose} of ${medicineName} at ${time}.`;
@@ -54,6 +62,7 @@ const sendReminderSMS = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while scheduling SMS reminders.' });
     }
 };
+
 
 const saveAppointmentAndCall = async (req, res) => {
     try {
