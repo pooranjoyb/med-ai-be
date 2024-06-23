@@ -17,7 +17,7 @@ const generator = async (data, templatePath) => {
         try {
 
             const browser = await puppeteer.launch({
-                executablePath: '/opt/render/project/.render/chrome/opt/google/chrome/'
+                executablePath: '/usr/bin/chromium-browser'
             });
             const page = await browser.newPage();
 
