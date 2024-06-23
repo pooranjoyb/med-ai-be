@@ -1,4 +1,4 @@
-FROM node:14-slim
+FROM node:16-slim
 
 # Install Chromium dependencies
 RUN apt-get update && apt-get install -y \
