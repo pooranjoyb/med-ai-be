@@ -16,7 +16,10 @@ const generator = async (data, templatePath) => {
     return new Promise(async (resolve, reject) => {
         try {
 
-            const browser = await puppeteer.launch();
+            const browser = await puppeteer.launch({
+                headless: false,
+                args: ['--headless'],
+              });
             const page = await browser.newPage();
 
             const content = await compile(templatePath, data)
