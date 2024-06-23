@@ -14,8 +14,8 @@ const app = express();
 const PORT = process.env.PORT || 8000
 
 app.use(cors());
-app.use(bp.json());
-app.use(bp.urlencoded({extended: false}))
+app.use(bp.json({limit: '10mb'}));
+app.use(bp.urlencoded({extended: false, limit: '10mb'}))
 
 app.get('/', (req, res) => {
     res.send('Hello from server')
