@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js"
 import twilioRoutes from "./routes/twilio.js"
 import geminiRoutes from "./routes/gemini.js"
 import Connection from './config/connection.js'
+import generatorRoutes from "./routes/report.js"
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 app.use('/api/gemini', geminiRoutes);
 app.use('/api/twilio', twilioRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/report', generatorRoutes);
 
 app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);

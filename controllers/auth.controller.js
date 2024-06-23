@@ -2,7 +2,7 @@ import User from '../models/user.model.js';
 import bcrypt from 'bcrypt';
 
 const signup = async (req, res) => {
-    const { username, password } = req.body;
+    const { name, address, sex, marital_status, bloodType, username, password } = req.body;
 
     try {
         const existingUser = await User.findOne({ username });
@@ -11,7 +11,7 @@ const signup = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
+        const newUser = new User({ name, address, sex, marital_status, bloodType, username, password: hashedPassword });
 
         await newUser.save();
 
